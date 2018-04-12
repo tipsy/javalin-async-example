@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Javalin Async Example</title>
+        <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.42/css/uikit.min.css">
+    </head>
+    <body style="max-width:540px;margin:80px auto">
+        <main id="vue-app">
+            <h1>Async vs Blocking</h1>
+            <div class="uk-margin">
+                <label class="uk-form-label">Url</label>
+                <input v-model="url" :disabled="isBusy" class="uk-input" placeholder="Url">
+            </div>
+            <div class="uk-margin">
+                <label class="uk-form-label">Number of requests</label>
+                <input v-model="numberOfRequests" :disabled="isBusy" class="uk-input" placeholder="Number of requests" maxlength="3">
+            </div>
+            <button :disabled="isBusy" @click="performRequests('async')" class="uk-button uk-button-primary">Run async</button>
+            <button :disabled="isBusy" @click="performRequests('blocking')" class="uk-button uk-button-primary">Run blocking</button>
+
+            <h3>{{remainingRequests}} requests remaining</h3>
+            <table v-if="results.length > 0" class="uk-table uk-table-striped">
+                <thead>
+                    <tr>
+                        <td>Url</td>
+                        <td>Mode</td>
+                        <td>Number of requests</td>
+                        <td>Time</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="result in results">
+                        <td>{{ result.url }}</td>
+                        <td>{{ result.mode }}</td>
+                        <td>{{ result.numberOfRequests }}</td>
+                        <td>{{ Math.round(result.time) }}ms</td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+        <script>
+            new Vue({
+                el: "#vue-app",
+                data: {
+                    numberOfRequests: 100,
+                    remainingRequests: 0,
+                    url: "http://example.com",
+                    isBusy: false,
+                    results: []
+                },
+                methods: {
+                    performRequests(mode) {
+                        this.isBusy = true;
+                        this.remainingRequests = this.numberOfRequests;
+                        const start = window.performance.now();
+                        let handleRequestFinish = () => {
+                            this.remainingRequests--;
+                            if (this.remainingRequests === 0) {
+                                this.results.unshift({
+                                    time: window.performance.now() - start,
+                                    numberOfRequests: this.numberOfRequests,
+                                    mode: mode,
+                                    url: this.url
+                                });
+                                this.isBusy = false;
+                            }
+                        };
+                        let url = "https://localhost:8443/proxy-request-" + mode + "?url=" + this.url;
+                        for (let i = 0; i < this.numberOfRequests; i++) {
+                            fetch(url).then(handleRequestFinish);
+                        }
+                    }
+                }
+            })
+        </script>
+    </body>
+</html>
