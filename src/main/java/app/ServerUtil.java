@@ -5,7 +5,6 @@ import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -18,10 +17,6 @@ public class ServerUtil {
         return new EmbeddedJettyFactory(() -> {
 
             Server server = new Server(new QueuedThreadPool(6, 3, 60_000));
-
-            ServerConnector connector = new ServerConnector(server);
-            connector.setPort(8080);
-            server.addConnector(connector);
 
             // HTTP Configuration
             HttpConfiguration httpConfig = new HttpConfiguration();
@@ -49,7 +44,7 @@ public class ServerUtil {
             SslConnectionFactory ssl = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
 
             // HTTP/2 Connector
-            ServerConnector http2Connector = new ServerConnector(server, ssl, alpn, h2, new HttpConnectionFactory(httpsConfig));
+            ServerConnector http2Connector = new ServerConnector(server, ssl, alpn, h2);
             http2Connector.setPort(8443);
             server.addConnector(http2Connector);
 
