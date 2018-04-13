@@ -30,27 +30,28 @@
             <button :disabled="isBusy" @click="performRequests('async')" class="uk-button uk-button-primary">Run async</button>
             <button :disabled="isBusy" @click="performRequests('blocking')" class="uk-button uk-button-primary">Run blocking</button>
 
-            <h3>{{remainingRequests}} requests remaining</h3>
-
-            <h4>Results</h4>
-            <table v-if="results.length > 0" class="uk-table uk-table-striped">
-                <thead>
-                    <tr>
-                        <td>Task time (ms)</td>
-                        <td>Number of requests</td>
-                        <td>Mode</td>
-                        <td>Time</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="result in results">
-                        <td>{{ result.taskTime }}</td>
-                        <td>{{ result.numberOfRequests }}</td>
-                        <td>{{ result.mode }}</td>
-                        <td>{{ Math.round(result.time) }}ms</td>
-                    </tr>
-                </tbody>
-            </table>
+            <template v-if="results.length > 0 || isBusy">
+                <h3>{{remainingRequests}} requests remaining</h3>
+                <h4>Results</h4>
+                <table class="uk-table uk-table-striped">
+                    <thead>
+                        <tr>
+                            <td>Task time (ms)</td>
+                            <td>Number of requests</td>
+                            <td>Mode</td>
+                            <td>Time</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="result in results">
+                            <td>{{ result.taskTime }}</td>
+                            <td>{{ result.numberOfRequests }}</td>
+                            <td>{{ result.mode }}</td>
+                            <td>{{ Math.round(result.time) }}ms</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </template>
         </main>
         <script>
             new Vue({
