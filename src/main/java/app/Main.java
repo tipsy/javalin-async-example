@@ -2,39 +2,39 @@ package app;
 
 import io.javalin.Javalin;
 import java.util.concurrent.CompletableFuture;
-import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.Dsl;
-import org.asynchttpclient.Response;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 public class Main {
 
+    private static ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+
     public static void main(String[] args) {
 
-        AsyncHttpClient asyncHttpClient = Dsl.asyncHttpClient();
-
         Javalin app = Javalin.create()
-            .embeddedServer(ServerUtil.createHttp2Server())
+            .embeddedServer(ServerUtil.createHttp2Server(new QueuedThreadPool(10, 2, 60_000)))
             .enableStaticFiles("/public")
             .start();
 
-        app.get("/proxy-request-async", ctx -> {
-            ctx.result(getStringCompletableFuture(asyncHttpClient, ctx.queryParam("url")));
+        app.get("/request-async", ctx -> {
+            long taskTime = Long.parseLong(ctx.queryParam("task-time"));
+            ctx.result(getFuture(taskTime));
         });
 
-        app.get("/proxy-request-blocking", ctx -> {
-            CompletableFuture<String> resultFuture = getStringCompletableFuture(asyncHttpClient, ctx.queryParam("url"));
-            String result = resultFuture.get(); // block
-            ctx.result(result);
+        app.get("/request-blocking", ctx -> {
+            long taskTime = Long.parseLong(ctx.queryParam("task-time"));
+            Thread.sleep(taskTime);
+            ctx.result("done");
         });
 
     }
 
-    private static CompletableFuture<String> getStringCompletableFuture(AsyncHttpClient asyncHttpClient, String url) {
-        return asyncHttpClient
-            .prepareGet(url)
-            .execute()
-            .toCompletableFuture()
-            .thenApply(Response::getResponseBody);
+    private static CompletableFuture<String> getFuture(long taskTime) {
+        CompletableFuture<String> future = new CompletableFuture<>();
+        executorService.scheduleWithFixedDelay(() -> future.complete("done"), taskTime, 1, TimeUnit.MILLISECONDS);
+        return future;
     }
 
 }

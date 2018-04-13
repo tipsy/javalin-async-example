@@ -13,10 +13,10 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 public class ServerUtil {
-    static EmbeddedJettyFactory createHttp2Server() {
+    static EmbeddedJettyFactory createHttp2Server(QueuedThreadPool queuedThreadPool) {
         return new EmbeddedJettyFactory(() -> {
 
-            Server server = new Server(new QueuedThreadPool(6, 3, 60_000));
+            Server server = new Server(queuedThreadPool);
 
             // HTTP Configuration
             HttpConfiguration httpConfig = new HttpConfiguration();
