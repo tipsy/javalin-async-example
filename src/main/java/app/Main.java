@@ -18,12 +18,12 @@ public class Main {
             .enableStaticFiles("/public")
             .start();
 
-        app.get("/request-async", ctx -> {
+        app.get("/async", ctx -> {
             long taskTime = Long.parseLong(ctx.queryParam("task-time"));
             ctx.result(getFuture(taskTime));
         });
 
-        app.get("/request-blocking", ctx -> {
+        app.get("/blocking", ctx -> {
             long taskTime = Long.parseLong(ctx.queryParam("task-time"));
             Thread.sleep(taskTime);
             ctx.result("done");
@@ -33,7 +33,7 @@ public class Main {
 
     private static CompletableFuture<String> getFuture(long taskTime) {
         CompletableFuture<String> future = new CompletableFuture<>();
-        executorService.scheduleWithFixedDelay(() -> future.complete("done"), taskTime, 1, TimeUnit.MILLISECONDS);
+        executorService.schedule(() -> future.complete("done"), taskTime, TimeUnit.MILLISECONDS);
         return future;
     }
 

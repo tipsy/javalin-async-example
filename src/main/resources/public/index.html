@@ -10,7 +10,8 @@
         <main id="vue-app">
             <h1>Async vs Blocking</h1>
             <p>
-                The server is configured with a ThreadPool of 10 threads. Play around with the number of requests and task time to see the effect of async vs blocking.
+                The server is configured with a ThreadPool of 10 threads.
+                Play around with the number of requests and task time to see the effect of async vs blocking.
                 <br>
                 <em>
                     <small>
@@ -80,7 +81,7 @@
                                 this.isBusy = false;
                             }
                         };
-                        let url = "https://localhost:8443/request-" + mode + "?task-time=" + this.taskTime;
+                        let url = "https://localhost:8443/" + mode + "?task-time=" + this.taskTime;
                         for (let i = 0; i < this.numberOfRequests; i++) {
                             fetch(url).then(handleRequestFinish);
                         }
