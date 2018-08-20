@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
 
         Javalin app = Javalin.create()
-            .embeddedServer(ServerUtil.createHttp2Server(new QueuedThreadPool(10, 2, 60_000)))
+            .server(() -> ServerUtil.createHttp2Server(new QueuedThreadPool(10, 2, 60_000)))
             .enableStaticFiles("/public")
             .start();
 
