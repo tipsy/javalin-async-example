@@ -19,12 +19,12 @@ public class Main {
             .start();
 
         app.get("/async", ctx -> {
-            long taskTime = Long.parseLong(ctx.queryParam("task-time"));
+            long taskTime = ctx.validatedQueryParam("task-time").asLong().getOrThrow();
             ctx.result(getFuture(taskTime));
         });
 
         app.get("/blocking", ctx -> {
-            long taskTime = Long.parseLong(ctx.queryParam("task-time"));
+            long taskTime = ctx.validatedQueryParam("task-time").asLong().getOrThrow();
             Thread.sleep(taskTime);
             ctx.result("done");
         });
