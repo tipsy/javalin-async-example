@@ -13,18 +13,18 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Javalin app = Javalin.create()
-            .server(() -> ServerUtil.createHttp2Server(new QueuedThreadPool(10, 2, 60_000)))
-            .enableStaticFiles("/public")
-            .start();
+        Javalin app = Javalin.create(config -> {
+            config.server(() -> ServerUtil.createHttp2Server(new QueuedThreadPool(10, 2, 60_000)));
+            config.addStaticFiles("/public");
+        }).start();
 
         app.get("/async", ctx -> {
-            long taskTime = ctx.validatedQueryParam("task-time").asLong().getOrThrow();
+            long taskTime = ctx.queryParam("task-time", Long.class).get();
             ctx.result(getFuture(taskTime));
         });
 
         app.get("/blocking", ctx -> {
-            long taskTime = ctx.validatedQueryParam("task-time").asLong().getOrThrow();
+            long taskTime = ctx.queryParam("task-time", Long.class).get();
             Thread.sleep(taskTime);
             ctx.result("done");
         });
